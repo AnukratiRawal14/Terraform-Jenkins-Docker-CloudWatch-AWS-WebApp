@@ -1,5 +1,5 @@
-| Resource               | Purpose |
-| ---------------------- | ------- |
-| Security Groups        |         |
-| NACLs                  |         |
-| IAM Roles and Policies |         |
+| Resource               | Purpose      |
+| ---------------------- |--------------|
+| Security Groups        | Created      |
+| NACLs                  | Not Required |
+| IAM Roles and Policies | Created      |
