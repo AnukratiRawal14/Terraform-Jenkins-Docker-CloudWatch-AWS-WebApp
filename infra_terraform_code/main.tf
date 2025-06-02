@@ -7,9 +7,10 @@ module "network" {
   availability_zones      = var.availability_zones
 }
 
-# module "security" {
-#   source = "./modules/security"
-# }
+module "security" {
+  source = "./modules/security"
+  vpc_id = module.network.app_vpc_id
+}
 
 # module "compute"{
 #   source = "./modules/compute"
