@@ -3,7 +3,9 @@
 
 🧾 We built a highly available, secure, and scalable application architecture on AWS. Traffic flows through Route 53 into an ALB distributed across two public subnets. The backend is hosted in private subnets via an Auto Scaling Group of Dockerized EC2 instances. Jenkins in a private subnet handles CI/CD, pushing images to ECR and deploying to EC2 via SSM. All traffic is internal, secrets are managed securely, and observability is enabled via CloudWatch
 
-![image](https://github.com/user-attachments/assets/48e518f2-971a-47a9-be65-8286c1b817fd)
+![image](https://github.com/user-attachments/assets/d8d7ce27-fd83-44b1-957d-c55ddad2ca26)
+
+
 
 
 
