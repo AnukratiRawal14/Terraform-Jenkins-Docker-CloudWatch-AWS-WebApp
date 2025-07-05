@@ -9,6 +9,8 @@ terraform {
 
 resource "aws_vpc" "app_vpc" {
   cidr_block = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support = true
   tags = {
     Name = "App VPC"
   }
@@ -120,3 +122,32 @@ resource "aws_route_table_association" "db_rt_assoc" {
   subnet_id      = aws_subnet.db_private_subnet[count.index].id
   route_table_id = aws_route_table.private_db_route_table[count.index].id
 }
+
+
+# ssm enpoints - used when needed private tunnel
+# resource "aws_vpc_endpoint" "ssm" {
+#   vpc_id            = aws_vpc.app_vpc.id
+#   service_name      = "com.amazonaws.${data.aws_region.current.name}.ssm"
+#   vpc_endpoint_type = "Interface"
+#   subnet_ids        = [for s in aws_subnet.app_private_subnet : s.id]
+#   security_group_ids = [var.ssm_security_group]
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "ssmmessages" {
+#   vpc_id            = aws_vpc.app_vpc.id
+#   service_name      = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+#   vpc_endpoint_type = "Interface"
+#   subnet_ids        = [for s in aws_subnet.app_private_subnet : s.id]
+#   security_group_ids = [var.ssm_security_group]
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "ec2messages" {
+#   vpc_id            = aws_vpc.app_vpc.id
+#   service_name      = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+#   vpc_endpoint_type = "Interface"
+#   subnet_ids        = [for s in aws_subnet.app_private_subnet : s.id]
+#   security_group_ids = [var.ssm_security_group]
+#   private_dns_enabled = true
+# }

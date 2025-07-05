@@ -19,6 +19,12 @@ resource "aws_iam_role_policy_attachment" "app_jenkins_managed_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
+# Attach SSM policy to Jenkins EC2 role
+resource "aws_iam_role_policy_attachment" "app_jenkins_ssm_policy" {
+  role       = aws_iam_role.app_jenkins_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 # Backend EC2 IAM Role
 resource "aws_iam_role" "app_backend_role" {
   name = "app-backend-ec2-role"
@@ -40,6 +46,11 @@ resource "aws_iam_role_policy_attachment" "app_backend_managed_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
+# Attach SSM policy to Jenkins EC2 role
+resource "aws_iam_role_policy_attachment" "app_backend_ssm_policy" {
+  role       = aws_iam_role.app_backend_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
 # Instance profiles to attach to EC2s
 resource "aws_iam_instance_profile" "app_jenkins_instance_profile" {
   name = "app-jenkins-instance-profile"
