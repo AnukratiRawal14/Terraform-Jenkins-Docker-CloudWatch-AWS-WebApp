@@ -50,7 +50,7 @@ pipeline {
                 }
             }
         }
-        stage('Terraform \Destroy') {
+        stage('Terraform Destroy') {
             steps {
                 dir('infra_terraform_code') {
                     sh """
