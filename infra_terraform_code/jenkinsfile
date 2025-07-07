@@ -7,13 +7,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-                echo "Checked out branch: ${env.BRANCH_NAME}"
-            }
-        }
-
+        
         stage('Terraform Init') {
             steps {
                 script {
@@ -44,10 +38,11 @@ pipeline {
             }
        }
 
-        stage('Manual Apply Reminder') {
+        stage('Terraform Apply') {
             steps {
                 echo "Manual apply step. Please run:"
                 echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
+                terraform apply tfplan-${env.BRANCH_NAME}.out
             }
         }
     }
