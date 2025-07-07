@@ -51,15 +51,20 @@ pipeline {
             }
         }
         stage('Terraform Destroy') {
-            steps {
-                dir('infra_terraform_code') {
-                    sh """
-                        echo "Destroy step. Please run:"
-                        echo "terraform destroy tfplan-${env.BRANCH_NAME}.out"
-                        terraform destroy tfplan-${env.BRANCH_NAME}.out
-                    """
-                }
-            }
+                    steps {
+                        input(message: "Do you really want to destroy the infrastructure?")
+                        dir('infra_terraform_code') {
+                            ansiColor('xterm') {
+                                sh """
+                                    terraform init -reconfigure \
+                                      -backend-config="bucket=webapp-s3-tf-backend" \
+                                      -backend-config="key=envs/${env.BRANCH_NAME}/terraform.tfstate" \
+                                      -backend-config="region=us-east-1" 
+                                    terraform destroy -auto-approve
+                                """
+                            }
+                        }
+                    }
         }
    }
 
