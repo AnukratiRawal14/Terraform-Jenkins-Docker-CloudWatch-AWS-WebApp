@@ -50,6 +50,17 @@ pipeline {
                 }
             }
         }
+        stage('Terraform \Destroy') {
+            steps {
+                dir('infra_terraform_code') {
+                    sh """
+                        echo "Destroy step. Please run:"
+                        echo "terraform destroy tfplan-${env.BRANCH_NAME}.out"
+                        terraform destroy tfplan-${env.BRANCH_NAME}.out
+                    """
+                }
+            }
+        }
    }
 
       
