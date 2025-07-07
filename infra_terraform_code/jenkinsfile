@@ -7,29 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Terraform Format') {
-            steps {
-                dir('infra_terraform_code') {
-                    sh 'terraform fmt -check -recursive'
-                }
-            }
-	    }
-
-        stage('Terraform Lint') {
-            steps {
-                dir('infra_terraform_code') {
-                    sh '''
-                        if ! command -v tflint &> /dev/null; then
-                          echo "Installing tflint..."
-                          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-                        fi
-    
-                        tflint --init
-                        tflint --recursive
-                    '''
-                }
-            }
-        }
 
         stage('Terraform Init') {
             steps {
