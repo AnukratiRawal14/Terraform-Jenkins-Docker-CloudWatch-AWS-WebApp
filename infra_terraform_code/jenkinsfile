@@ -40,9 +40,11 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                echo "Manual apply step. Please run:"
-                echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
-                terraform apply tfplan-${env.BRANCH_NAME}.out
+               sh """
+                  echo "Manual apply step. Please run:"
+                  echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
+                  terraform apply tfplan-${env.BRANCH_NAME}.out
+               """
             }
         }
     }
