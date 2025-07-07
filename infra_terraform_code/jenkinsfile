@@ -7,47 +7,75 @@ pipeline {
     }
 
     stages {
-        
-        stage('Terraform Init') {
-            steps {
-                script {
-                    def bucket      = "webapp-s3-tf-backend"
-                    def key         = "envs/${env.BRANCH_NAME}/terraform.tfstate"
-                    def region      = "${env.AWS_REGION}"
-                    def dynamoTable = "terraform-lock-table"
+        stage('Terraform Format') {
+	    steps {
+	        dir('infra_terraform_code') {
+	            sh 'terraform fmt -check -recursive'
+	        }
+	    }
+	}
 
-                    sh """
-                        cd infra_terraform_code
-                        terraform init \
-                          -backend-config=\"bucket=${bucket}\" \
-                          -backend-config=\"key=${key}\" \
-                          -backend-config=\"region=${region}\" \
-                          -backend-config=\"encrypt=true\"
-                    """
-                }
-            }
-        }
+       stage('Terraform Lint') {
+	    steps {
+	        dir('infra_terraform_code') {
+	            sh '''
+	                if ! command -v tflint &> /dev/null; then
+	                  echo "Installing tflint..."
+	                  curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+	                fi
+	
+	                tflint --init
+	                tflint --recursive
+	            '''
+	        }
+	    }
+	}
+
+	stage('Terraform Init') {
+	    steps {
+		dir('infra_terraform_code') {
+		    script {
+			def bucket      = "webapp-s3-tf-backend"
+			def key         = "envs/${env.BRANCH_NAME}/terraform.tfstate"
+			def region      = "${env.AWS_REGION}"
+			def dynamoTable = "terraform-lock-table"
+	
+			sh """
+			    terraform init \
+			      -backend-config="bucket=${bucket}" \
+			      -backend-config="key=${key}" \
+			      -backend-config="region=${region}" \
+			      -backend-config="dynamodb_table=${dynamoTable}" \
+			      -backend-config="encrypt=true"
+			"""
+		    }
+		}
+	   }
+	}
 
        stage('Terraform Plan') {
-            steps {
-                sh """
-                    cd infra_terraform_code
-                    echo "Running terraform plan..."
-                    terraform plan -out=tfplan-${env.BRANCH_NAME}.out
-                """
-            }
-       }
+	    steps {
+	        dir('infra_terraform_code') {
+	            sh """
+	                echo "Running terraform plan..."
+	                terraform plan -out=tfplan-${env.BRANCH_NAME}.out
+	            """
+	        }
+	    }
+	}
 
-        stage('Terraform Apply') {
-            steps {
-               sh """
-                  echo "Manual apply step. Please run:"
-                  echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
-                  terraform apply tfplan-${env.BRANCH_NAME}.out
-               """
-            }
-        }
-    }
+	stage('Terraform Apply') {
+	    steps {
+	        dir('infra_terraform_code') {
+	            sh """
+	                echo "Manual apply step. Please run:"
+	                echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
+	                terraform apply tfplan-${env.BRANCH_NAME}.out
+	            """
+	        }
+	    }
+}
+
 
     post {
         always {
