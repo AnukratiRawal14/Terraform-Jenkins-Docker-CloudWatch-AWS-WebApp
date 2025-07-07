@@ -3,6 +3,7 @@ pipeline {
 		
     environment {
         TF_VAR_environment = "${env.BRANCH_NAME}"
+        AWS_REGION = "us-east-1"
     }
 
     stages {
@@ -22,6 +23,7 @@ pipeline {
                     def dynamoTable = "terraform-lock-table"
 
                     sh """
+                        cd infra_terraform_code
                         terraform init \
                           -backend-config=\"bucket=${bucket}\" \
                           -backend-config=\"key=${key}\" \
@@ -35,6 +37,7 @@ pipeline {
        stage('Terraform Plan') {
             steps {
                 sh """
+                    cd infra_terraform_code
                     echo "Running terraform plan..."
                     terraform plan -out=tfplan-${env.BRANCH_NAME}.out
                 """
