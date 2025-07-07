@@ -2,15 +2,47 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'
-        // Add other necessary environment variables here
+        TF_VAR_environment = "${env.BRANCH_NAME}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the repository
                 checkout scm
+                echo "Checked out branch: ${env.BRANCH_NAME}"
             }
         }
- }
+
+        stage('Terraform Init') {
+            steps {
+                sh '''
+                    echo "Running terraform init..."
+                    terraform init
+                '''
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh '''
+                    echo "Running terraform plan..."
+                    terraform plan -out=tfplan-${env.BRANCH_NAME}.out
+                '''
+            }
+        }
+
+        stage('Manual Apply Reminder') {
+            steps {
+                echo "Manual apply step. Please run:"
+                echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Terraform pipeline completed for branch: ${env.BRANCH_NAME}"
+        }
+    }
+}
+
