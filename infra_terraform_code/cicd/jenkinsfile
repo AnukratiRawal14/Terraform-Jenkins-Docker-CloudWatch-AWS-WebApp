@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'hashicorp/terraform:latest'
-        }
-    }
+    agent any
 
     environment {
         TF_VAR_environment = "${env.BRANCH_NAME}"
@@ -26,14 +22,14 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
+       stage('Terraform Plan') {
             steps {
-                sh '''
+                sh """
                     echo "Running terraform plan..."
                     terraform plan -out=tfplan-${env.BRANCH_NAME}.out
-                '''
+                """
             }
-        }
+       }
 
         stage('Manual Apply Reminder') {
             steps {
