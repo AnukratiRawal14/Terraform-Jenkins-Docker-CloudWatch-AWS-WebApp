@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+		
+    environment {
+        TF_VAR_environment = "${env.BRANCH_NAME}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "Checked out branch: ${env.BRANCH_NAME}"
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    def bucket      = "webapp-s3-tf-backend"
+                    def key         = "envs/${env.BRANCH_NAME}/terraform.tfstate"
+                    def region      = "${env.AWS_REGION}"
+                    def dynamoTable = "terraform-lock-table"
+
+                    sh """
+                        terraform init \
+                          -backend-config=\"bucket=${bucket}\" \
+                          -backend-config=\"key=${key}\" \
+                          -backend-config=\"region=${region}\" \
+                          -backend-config=\"encrypt=true\"
+                    """
+                }
+            }
+        }
+
+       stage('Terraform Plan') {
+            steps {
+                sh """
+                    echo "Running terraform plan..."
+                    terraform plan -out=tfplan-${env.BRANCH_NAME}.out
+                """
+            }
+       }
+
+        stage('Manual Apply Reminder') {
+            steps {
+                echo "Manual apply step. Please run:"
+                echo "terraform apply tfplan-${env.BRANCH_NAME}.out"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Terraform pipeline completed for branch: ${env.BRANCH_NAME}"
+        }
+    }
+}
+
