@@ -75,12 +75,13 @@ pipeline {
                 }
             }
         }
+   }
 
-
+      
         post {
             always {
                 echo "Terraform pipeline completed for branch: ${env.BRANCH_NAME}"
             }
         }
-    }
+    
 }
